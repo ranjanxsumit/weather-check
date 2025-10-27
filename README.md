@@ -7,6 +7,14 @@ Features
 - Fetch current weather (Open-Meteo current_weather)
 - Responsive liquid glass UI using Tailwind and CSS backdrop-filter
 
+<img width="1901" height="887" alt="image" src="https://github.com/user-attachments/assets/2e882d4d-1e46-42c4-8c2f-8c06e4afc664" />
+
+<img width="1867" height="879" alt="image" src="https://github.com/user-attachments/assets/a3105369-b124-4e3b-b4a6-ef324138d7f9" />
+<img width="1896" height="886" alt="image" src="https://github.com/user-attachments/assets/75a29f91-6380-4f90-bf31-563b49ed7c8b" />
+<img width="1884" height="871" alt="image" src="https://github.com/user-attachments/assets/f09f7b89-7817-46f9-ac9f-5bfacb5c122e" />
+
+
+
 Quick start
 1. Install dependencies
 
