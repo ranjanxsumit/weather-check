@@ -39,7 +39,7 @@ npm run dev
 npm run build
 npm run preview
 ```.
-ChatGPT chat link:
+Gemini chat link: https://gemini.google.com/share/a7013fa93004
 
 The project code is in this repository.
 
