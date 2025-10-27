@@ -1,0 +1,96 @@
+/* src/styles/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure html/body are full height */
+html, body, #root {
+  height: 100%;
+}
+
+/* Base style for all backgrounds */
+.bg-sunny, .bg-rainy, .bg-cloudy, .bg-night {
+  background-size: cover;
+  background-position: center;
+}
+
+/* Make cloudy a bit darker */
+.bg-cloudy {
+  filter: brightness(0.8);
+}
+
+
+/* Updated Liquid glass styles */
+.glass {
+  background: rgba(255, 255, 255, 0.15); /* A bit whiter and more opaque */
+  border: 1px solid rgba(255,255,255,0.25); /* Lighter border */
+  backdrop-filter: blur(24px) saturate(120%); /* Much stronger blur */
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+}
+
+/* New style for inset glass cards */
+.glass-inset {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ... (keep your rain animation styles) ... */
+
+/* Rain Animation Styles */
+@keyframes fall {
+  0% {
+    transform: translateY(-100px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(100vh + 100px));
+    opacity: 0.5;
+  }
+}
+
+.rain-drop {
+  position: absolute;
+  top: -100px; /* Start off-screen */
+  width: 2px; /* slightly wider so visible on various backgrounds */
+  height: 56px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.6));
+  animation: fall linear infinite;
+  will-change: transform, opacity;
+  mix-blend-mode: screen;
+}
+
+/* Card-level rain (smaller, subtle) */
+.card-rain-drop {
+  position: absolute;
+  top: -30px;
+  width: 1.5px;
+  height: 28px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(255,255,255,0.45));
+  animation: card-fall linear infinite;
+  opacity: 0.95;
+  border-radius: 1px;
+}
+
+@keyframes card-fall {
+  0% { transform: translateY(-10px); opacity: 1; }
+  100% { transform: translateY(120%); opacity: 0.2; }
+}
+
+/* Small blinking stars inside cards */
+.card-star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 6px rgba(255,255,255,0.6);
+  opacity: 0.9;
+  animation: star-blink 2.5s ease-in-out infinite;
+}
+
+@keyframes star-blink {
+  0% { transform: scale(0.8); opacity: 0.25; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0.25; }
+}
