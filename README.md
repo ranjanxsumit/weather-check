@@ -16,6 +16,10 @@ Features
 
 
 
+https://github.com/user-attachments/assets/f3ff694f-3a71-4c7c-bc08-6014fc72cb19
+
+
+
 Quick start
 1. Install dependencies
 
