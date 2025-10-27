@@ -1,6 +1,6 @@
 # MAUSAM
 
-Weather Now — a small React app with Tailwind CSS and a liquid glass UI that lets users quickly check current weather for any city using the Open-Meteo APIs.
+MAUSAM — a small React app with Tailwind CSS and a liquid glass UI that lets users quickly check current weather for any city using the Open-Meteo APIs.
 
 Features
 - Search for a city name (uses Open-Meteo geocoding API)
@@ -30,4 +30,3 @@ ChatGPT chat link:
 
 The project code is in this repository.
 
-If you want, I can also add a small deployment script or GitHub Actions workflow to auto-deploy on push.
