@@ -32,9 +32,9 @@ function App() {
       }
       const { latitude, longitude, name, country } = geo.results[0];
 
-      // 2. Weather API Call
+      // 2. Weather API Call (include sunrise/sunset for precise day/night)
       const weatherRes = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`
       );
       if (!weatherRes.ok) {
         const errJson = await weatherRes.json();
@@ -105,23 +105,53 @@ function App() {
       // ignore parsing errors
     }
 
-    // determine day/night and override background for nicer visuals:
-    // - if night hours (<6 or >=18) show night background
-    // - else if raining -> prefer rainy background
-    // - else if morning hours (6-12) show sunny background
+    // determine day/night using sunrise/sunset from the API (preferred) or fallback to hour parsing
     try {
-      const hour = new Date(weather.current.time).getHours();
-      if (hour < 6 || hour >= 18) {
+      let night = false;
+      if (
+        weather.daily &&
+        Array.isArray(weather.daily.time) &&
+        Array.isArray(weather.daily.sunrise) &&
+        Array.isArray(weather.daily.sunset)
+      ) {
+        const currentDate = String(weather.current.time).split('T')[0]; // 'YYYY-MM-DD'
+        const dayIdx = weather.daily.time.findIndex((d) => d === currentDate);
+        if (dayIdx !== -1) {
+          const sunriseStr = weather.daily.sunrise[dayIdx];
+          const sunsetStr = weather.daily.sunset[dayIdx];
+          const nowTs = Date.parse(weather.current.time);
+          const sunriseTs = Date.parse(sunriseStr);
+          const sunsetTs = Date.parse(sunsetStr);
+          if (Number.isFinite(nowTs) && Number.isFinite(sunriseTs) && Number.isFinite(sunsetTs)) {
+            if (nowTs < sunriseTs || nowTs >= sunsetTs) night = true;
+          }
+        }
+      }
+
+      // fallback: if we couldn't determine using sunrise/sunset, parse hour from timestamp
+      if (!night) {
+        let hour = null;
+        if (typeof weather.current.time === 'string') {
+          const m = weather.current.time.match(/T(\d{2}):(\d{2})/);
+          if (m) hour = parseInt(m[1], 10);
+        }
+        if (hour === null) hour = new Date(weather.current.time).getHours();
+        if (hour < 6 || hour >= 18) night = true;
+      }
+
+      isNight = night;
+      if (isNight) {
         visuals.bgClass = 'bg-night';
-        isNight = true;
       } else if (showRain) {
         visuals.bgClass = 'bg-rainy';
-      } else if (hour >= 6 && hour < 12) {
-        // morning and not raining -> prefer sunny background
-        visuals.bgClass = 'bg-sunny';
+      } else {
+        // morning preference: if hour between 6-12 show sunny; otherwise keep default
+        const m = String(weather.current.time).match(/T(\d{2}):(\d{2})/);
+        const hour = m ? parseInt(m[1], 10) : new Date(weather.current.time).getHours();
+        if (hour >= 6 && hour < 12) visuals.bgClass = 'bg-sunny';
       }
     } catch (e) {
-      // keep default visuals if parsing fails
+      // keep defaults on error
     }
   }
 
