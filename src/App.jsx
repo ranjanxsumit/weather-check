@@ -11,6 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [weather, setWeather] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
 
   async function handleSearch(e) {
     e && e.preventDefault();
@@ -71,7 +72,7 @@ function App() {
       if (!showRain && weather.hourly && weather.current && Array.isArray(weather.hourly.weathercode)) {
         const times = weather.hourly.time || [];
         const codes = weather.hourly.weathercode;
-        const rainCodes = [51,53,55,61,63,65,80,95];
+        const rainCodes = [51, 53, 55, 61, 63, 65, 80, 95];
         const currentTime = new Date(weather.current.time).getTime();
 
         // find the hourly index closest to current_time
@@ -162,16 +163,51 @@ function App() {
       {showRain && <RainAnimation />}
 
       <div className="relative z-10 h-full flex flex-col">
-        
+
         {/* Compact, independent search header — absolute so it doesn't affect card centering */}
         <header className="static lg:absolute lg:left-6 lg:top-6 lg:z-20 p-2 lg:p-2 w-full lg:w-auto">
-          <form onSubmit={handleSearch} className="flex gap-2 items-center p-1 bg-white/3 lg:bg-transparent rounded-lg w-full lg:w-auto">
-            <input
-              className="glass p-2 rounded-lg text-white placeholder-white/60 focus:outline-none border border-white/10 w-full lg:w-44"
-              placeholder="Enter city"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+          <form onSubmit={handleSearch} className="relative flex gap-2 items-center p-1 bg-white/3 lg:bg-transparent rounded-lg w-full lg:w-auto">
+            <div className="relative w-full lg:w-44">
+              <input
+                className="glass p-2 rounded-lg text-white placeholder-white/60 focus:outline-none border border-white/10 w-full"
+                placeholder="Enter city"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  if (e.target.value.length > 2) {
+                    fetch(
+                      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(e.target.value)}&count=5`
+                    )
+                      .then((res) => res.json())
+                      .then((data) => {
+                        setSuggestions(data.results || []);
+                      })
+                      .catch(() => setSuggestions([]));
+                  } else {
+                    setSuggestions([]);
+                  }
+                }}
+                onBlur={() => setTimeout(() => setSuggestions([]), 200)}
+              />
+              {suggestions.length > 0 && (
+                <ul className="absolute top-full left-0 right-0 mt-1 bg-white/20 backdrop-blur-md border border-white/10 rounded-lg shadow-lg overflow-hidden z-50">
+                  {suggestions.map((city) => (
+                    <li
+                      key={city.id}
+                      className="px-3 py-2 text-white hover:bg-white/20 cursor-pointer text-sm"
+                      onClick={() => {
+                        setQuery(`${city.name}, ${city.country}`);
+                        setSuggestions([]);
+                        // Optional: Trigger search immediately
+                        // handleSearch(); 
+                      }}
+                    >
+                      {city.name}, {city.country}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <button
               type="submit"
               onClick={handleSearch}
@@ -181,7 +217,7 @@ function App() {
               {loading ? '...' : 'Search'}
             </button>
           </form>
-          
+
           {error && (
             <div className="mt-4 rounded-lg p-4 bg-red-600/20 text-red-100">
               {error}
@@ -189,14 +225,14 @@ function App() {
           )}
         </header>
 
-  <main className="flex-grow flex items-center justify-center px-6 pb-6 lg:pt-20">
-          
+        <main className="flex-grow flex items-center justify-center px-6 pb-6 lg:pt-20">
+
           <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto items-center px-4 md:px-0">
-            
+
             {/* --- TOP ROW --- */}
             {/* Stack on small screens, side-by-side on md+; make cards responsive */}
             <div className="flex flex-col md:flex-row gap-6 items-center justify-center w-full max-w-[760px] md:max-w-[760px] lg:max-w-[816px] mx-auto">
-              
+
               {/* Card 1: Main (Current) */}
               <div className="glass p-4 sm:p-6 rounded-2xl shadow-xl w-full md:max-w-[340px] md:min-h-[340px] lg:max-w-[396px] lg:min-h-[396px] flex-none relative overflow-hidden">
                 {/* effects sit under the card content */}
